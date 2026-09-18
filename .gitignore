@@ -1,0 +1,41 @@
+# Environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.sarif
+
+# Terraform & IaC State
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars.json
+.terraform.lock.hcl
+crash.log
+
+# IDE & Operating System
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs & Temp
+*.log
+tmp/
