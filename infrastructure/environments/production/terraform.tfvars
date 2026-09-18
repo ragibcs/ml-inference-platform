@@ -1,0 +1,11 @@
+aws_region          = "us-east-1"
+environment         = "production"
+cluster_name        = "ml-platform-prod-eks"
+kubernetes_version  = "1.30"
+vpc_cidr            = "10.20.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b", "us-east-1c"]
+node_instance_types = ["t3.large"]
+min_node_count      = 3
+max_node_count      = 10
+desired_node_count  = 3
+enable_monitoring   = true

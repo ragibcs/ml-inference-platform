@@ -1,0 +1,11 @@
+aws_region          = "us-east-1"
+environment         = "dev"
+cluster_name        = "ml-platform-dev-eks"
+kubernetes_version  = "1.30"
+vpc_cidr            = "10.10.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b"]
+node_instance_types = ["t3.medium"]
+min_node_count      = 2
+max_node_count      = 4
+desired_node_count  = 2
+enable_monitoring   = true
