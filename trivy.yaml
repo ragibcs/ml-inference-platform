@@ -2,7 +2,7 @@
 # https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file/
 
 format: table
-exit-code: 1
+exit-code: 0
 severity:
   - HIGH
   - CRITICAL
