@@ -1,0 +1,24 @@
+# Trivy Configuration File
+# https://aquasecurity.github.io/trivy/latest/docs/references/configuration/config-file/
+
+format: table
+exit-code: 1
+severity:
+  - HIGH
+  - CRITICAL
+ignore-unfixed: true
+
+scan:
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+
+misconfiguration:
+  scanners:
+    - terraform
+    - kubernetes
+    - dockerfile
+
+vulnerability:
+  ignore-unfixed: true

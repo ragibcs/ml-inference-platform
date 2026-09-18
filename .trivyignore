@@ -1,0 +1,3 @@
+# Trivy vulnerability ignore file
+# Format: CVE-YYYY-NNNN or vulnerability ID
+# Example: CVE-2023-XXXX # Justification: Not applicable in non-root runtime container
