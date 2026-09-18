@@ -1,0 +1,74 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-coverage:
+    name: Lint, Test & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r model_service/requirements.txt
+          pip install ruff
+
+      - name: Code Formatting & Lint Check
+        run: |
+          ruff check model_service/app model_service/tests
+
+      - name: Train Test Model Artifact
+        run: |
+          python model_service/model/train.py
+
+      - name: Run Pytest with Coverage
+        run: |
+          PYTHONPATH=model_service pytest model_service/tests/ -v --cov=model_service/app --cov-fail-under=80 --cov-report=xml --cov-report=term-missing
+
+  docker-build-and-scan:
+    name: Docker Build & Trivy Scan
+    runs-on: ubuntu-latest
+    needs: [test-and-coverage]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Train Model Artifact for Container Build
+        run: |
+          python3 -m pip install scikit-learn numpy joblib
+          python3 model_service/model/train.py
+
+      - name: Build Local Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: model_service
+          push: false
+          tags: ml-inference-service:ci-test
+          load: true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "ml-inference-service:ci-test"
+          format: "table"
+          exit-code: "0" # Non-blocking on CI preview, blocking on security.yml
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
