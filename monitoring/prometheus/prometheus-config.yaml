@@ -10,7 +10,7 @@ scrape_configs:
   - job_name: "ml-inference-service"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["ml-inference-service.ml-platform.svc.cluster.local:8000"]
+      - targets: ["ml-inference-service:8000", "ml-inference-service.ml-platform.svc.cluster.local:8000"]
         labels:
           app: "ml-inference-service"
           env: "production"

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  ml-inference-service:
+    build:
+      context: ./model_service
+      dockerfile: Dockerfile
+    image: ghcr.io/ragibcs/ml-inference-platform/ml-inference-service:latest
+    container_name: ml-inference-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=ml-inference-platform
+      - APP_ENV=local
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - MODEL_PATH=model/model.joblib
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ml-network
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: ml-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus-config.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts:/etc/prometheus/alerts:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - ml-inference-service
+    networks:
+      - ml-network
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: ml-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
+      - ./monitoring/grafana/dashboard-provider.yaml:/etc/grafana/provisioning/dashboards/provider.yaml:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - ml-network
+
+networks:
+  ml-network:
+    driver: bridge
