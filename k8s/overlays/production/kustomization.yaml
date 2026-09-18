@@ -6,12 +6,12 @@ namespace: ml-platform-prod
 namePrefix: prod-
 
 resources:
-  - ../../base
+- ../../base
 
 patches:
-  - path: patch.yaml
+- path: patch.yaml
 
 images:
-  - name: ghcr.io/ragibcs/ml-inference-service
-    newName: ghcr.io/ragibcs/ml-inference-service
-    newTag: v1.0.0
+- name: ghcr.io/ragibcs/ml-inference-service
+  newName: ghcr.io/ragibcs/ml-inference-service
+  newTag: git-907ad4063e95077ac62ff6fa943632ba87537318
