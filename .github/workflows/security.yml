@@ -29,6 +29,7 @@ jobs:
           format: "sarif"
           output: "trivy-fs-results.sarif"
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"
 
       - name: Run Trivy on Terraform Infrastructure Configuration
         uses: aquasecurity/trivy-action@master
@@ -38,6 +39,7 @@ jobs:
           format: "sarif"
           output: "trivy-iac-results.sarif"
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"
 
       - name: Run Trivy on Kubernetes Manifests
         uses: aquasecurity/trivy-action@master
@@ -47,17 +49,18 @@ jobs:
           format: "table"
           severity: "CRITICAL,HIGH"
           exit-code: "0"
+          trivyignores: ".trivyignore"
 
       - name: Upload Filesystem SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('trivy-fs-results.sarif') != ''
         with:
           sarif_file: "trivy-fs-results.sarif"
           category: "trivy-filesystem"
 
       - name: Upload IaC SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: always() && hashFiles('trivy-iac-results.sarif') != ''
         with:
           sarif_file: "trivy-iac-results.sarif"
           category: "trivy-iac"

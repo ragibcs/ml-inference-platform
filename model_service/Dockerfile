@@ -25,6 +25,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # --------------------------------------------------------
 FROM python:3.12-slim-bookworm AS runtime
 
+# Apply latest base OS security updates
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # Security hardening: Create non-root system group and user
 ENV APP_USER=appuser \
     APP_UID=10001 \

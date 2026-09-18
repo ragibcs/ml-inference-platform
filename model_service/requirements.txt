@@ -1,5 +1,6 @@
 # Core API and Server
-fastapi>=0.115.0,<0.116.0
+fastapi>=0.115.0
+starlette>=0.49.2
 uvicorn[standard]>=0.34.0,<0.35.0
 pydantic>=2.10.0,<2.11.0
 pydantic-settings>=2.7.0,<2.8.0

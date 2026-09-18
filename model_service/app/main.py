@@ -6,8 +6,8 @@ Configures middleware, lifecycle events, global exception handling, routes, and 
 
 import time
 import uuid
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         model_service.load_model()
         logger.info("Model service initialized and ready to serve traffic.")
-    except Exception as e:
+    except (FileNotFoundError, RuntimeError) as e:
         logger.error(
             f"Startup warning: Model could not be pre-loaded: {e}. "
             "Readiness probe will report unready until resolved."
@@ -103,7 +103,7 @@ async def metrics_and_logging_middleware(request: Request, call_next):
         status_code = str(response.status_code)
     except Exception as exc:
         status_code = "500"
-        logger.exception(f"Unhandled exception during request processing: {exc}")
+        logger.exception("Unhandled exception during request processing")
         raise exc from None
     finally:
         duration_s = time.perf_counter() - start_time

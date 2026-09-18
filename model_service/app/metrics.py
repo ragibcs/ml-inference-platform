@@ -5,13 +5,25 @@ Exposes standard RED (Rate, Errors, Duration) metrics and ML inference specific 
 """
 
 from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    REGISTRY,
     Counter,
     Gauge,
     Histogram,
     generate_latest,
-    CONTENT_TYPE_LATEST,
-    REGISTRY,
 )
+
+__all__ = [
+    "ACTIVE_REQUESTS",
+    "CONTENT_TYPE_LATEST",
+    "HTTP_REQUESTS_TOTAL",
+    "HTTP_REQUEST_DURATION_SECONDS",
+    "MODEL_INFERENCE_DURATION_SECONDS",
+    "MODEL_LOAD_STATUS",
+    "PREDICTIONS_TOTAL",
+    "PREDICTION_ERRORS_TOTAL",
+    "get_latest_metrics",
+]
 
 # Standard HTTP metrics
 HTTP_REQUESTS_TOTAL = Counter(

@@ -2,10 +2,10 @@
 Pytest Fixtures and Global Test Configuration.
 """
 
-import os
 import sys
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator, List
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,9 +20,8 @@ if not MODEL_PATH.exists():
     from model.train import train_and_save_model
     train_and_save_model(output_path=str(MODEL_PATH))
 
-from app.config import get_settings, Settings
 from app.main import app
-from app.services.inference import get_model_service, ModelService
+from app.services.inference import ModelService, get_model_service
 
 
 @pytest.fixture(scope="session")
@@ -33,13 +32,13 @@ def client() -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
-def sample_features() -> List[float]:
+def sample_features() -> list[float]:
     """Provide standard 4-feature test vector (Iris Setosa)."""
     return [5.1, 3.5, 1.4, 0.2]
 
 
 @pytest.fixture
-def sample_batch_features() -> List[List[float]]:
+def sample_batch_features() -> list[list[float]]:
     """Provide standard multi-vector batch test payload."""
     return [
         [5.1, 3.5, 1.4, 0.2],  # Setosa

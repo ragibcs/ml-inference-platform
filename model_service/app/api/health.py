@@ -4,7 +4,8 @@ Health and Readiness Probes API.
 Implements Kubernetes liveness (/health) and readiness (/ready) probe endpoints.
 """
 
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, Response, status
+
 from app.config import get_settings
 from app.schemas.prediction import HealthResponse, ReadyResponse
 from app.services.inference import get_model_service

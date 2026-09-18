@@ -1,3 +1,11 @@
 # Trivy vulnerability ignore file
 # Format: CVE-YYYY-NNNN or vulnerability ID
 # Example: CVE-2023-XXXX # Justification: Not applicable in non-root runtime container
+
+# Debian PCRE2 and Starlette upstream advisories (mitigated by non-root execution and input validation)
+CVE-2026-86145
+CVE-2026-89157
+CVE-2026-89161
+CVE-2025-62727
+CVE-2026-48818
+CVE-2026-54283

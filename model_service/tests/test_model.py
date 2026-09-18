@@ -3,12 +3,11 @@ Model Service Unit Tests.
 """
 
 import pytest
+from app.schemas.prediction import BatchPredictionResponse, PredictionResponse
 from app.services.inference import (
-    ModelService,
     ModelNotLoadedError,
-    ModelInferenceError,
+    ModelService,
 )
-from app.schemas.prediction import PredictionResponse, BatchPredictionResponse
 
 
 def test_model_service_load_and_predict(sample_features):

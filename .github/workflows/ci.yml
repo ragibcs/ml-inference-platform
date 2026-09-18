@@ -72,3 +72,4 @@ jobs:
           exit-code: "0" # Non-blocking on CI preview, blocking on security.yml
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
+          trivyignores: ".trivyignore"

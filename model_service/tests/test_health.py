@@ -2,9 +2,9 @@
 Health and Readiness Endpoint Tests.
 """
 
+from app.services.inference import get_model_service
 from fastapi import status
 from fastapi.testclient import TestClient
-from app.services.inference import get_model_service
 
 
 def test_health_liveness_endpoint(client: TestClient):

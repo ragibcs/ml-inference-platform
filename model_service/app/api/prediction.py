@@ -5,18 +5,19 @@ Handles single and batch ML inference requests with Pydantic validation and erro
 """
 
 from fastapi import APIRouter, HTTPException, status
+
 from app.logging import get_logger
 from app.schemas.prediction import (
-    PredictionRequest,
-    PredictionResponse,
     BatchPredictionRequest,
     BatchPredictionResponse,
     ErrorResponse,
+    PredictionRequest,
+    PredictionResponse,
 )
 from app.services.inference import (
-    get_model_service,
-    ModelNotLoadedError,
     ModelInferenceError,
+    ModelNotLoadedError,
+    get_model_service,
 )
 
 logger = get_logger("model_service.api.prediction")
@@ -67,11 +68,11 @@ def predict(request: PredictionRequest) -> PredictionResponse:
             detail={"error": "INVALID_INPUT", "message": str(e)},
         )
     except ModelInferenceError as e:
-        logger.exception(f"Inference error: {e}")
+        logger.exception("Inference execution error")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"error": "INFERENCE_FAILED", "message": str(e)},
-        )
+        ) from e
 
 
 @router.post(
@@ -103,15 +104,15 @@ def predict_batch(request: BatchPredictionRequest) -> BatchPredictionResponse:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={"error": "MODEL_NOT_LOADED", "message": str(e)},
-        )
+        ) from e
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"error": "INVALID_INPUT", "message": str(e)},
-        )
+        ) from e
     except Exception as e:
-        logger.exception(f"Batch prediction error: {e}")
+        logger.exception("Batch prediction execution error")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"error": "BATCH_INFERENCE_FAILED", "message": str(e)},
-        )
+        ) from e

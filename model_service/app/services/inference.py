@@ -6,7 +6,8 @@ Handles model loading, validation, batch and single predictions, and performance
 
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import joblib
 import numpy as np
 
@@ -15,36 +16,34 @@ from app.logging import get_logger
 from app.metrics import (
     MODEL_INFERENCE_DURATION_SECONDS,
     MODEL_LOAD_STATUS,
-    PREDICTIONS_TOTAL,
     PREDICTION_ERRORS_TOTAL,
+    PREDICTIONS_TOTAL,
 )
-from app.schemas.prediction import PredictionResponse, BatchPredictionResponse
+from app.schemas.prediction import BatchPredictionResponse, PredictionResponse
 
 logger = get_logger("model_service.inference")
 
 
 class ModelNotLoadedError(Exception):
     """Raised when an inference operation is attempted before the model is loaded."""
-    pass
 
 
 class ModelInferenceError(Exception):
     """Raised when an error occurs during model execution."""
-    pass
 
 
 class ModelService:
     """Manages the lifecycle and execution of the machine learning model."""
 
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_path: str | None = None):
         self.settings = get_settings()
         self.model_path = model_path or self.settings.model_path
-        self.pipeline: Optional[Any] = None
+        self.pipeline: Any | None = None
         self.model_version: str = self.settings.model_version
-        self.feature_names: List[str] = []
+        self.feature_names: list[str] = []
         self.expected_features_count: int = self.settings.expected_features_count
-        self.target_names: List[str] = []
-        self.metadata: Dict[str, Any] = {}
+        self.target_names: list[str] = []
+        self.metadata: dict[str, Any] = {}
         self._is_loaded: bool = False
 
     @property
@@ -62,7 +61,7 @@ class ModelService:
             Path(__file__).resolve().parent.parent.parent / self.model_path,
             Path("/app") / self.model_path,
         ]
-        resolved_path: Optional[Path] = None
+        resolved_path: Path | None = None
         for candidate in candidates:
             if candidate.exists() and candidate.is_file():
                 resolved_path = candidate
@@ -99,7 +98,7 @@ class ModelService:
         except Exception as e:
             self._is_loaded = False
             MODEL_LOAD_STATUS.labels(model_version=self.model_version).set(0)
-            logger.exception(f"Failed to load model artifact: {e}")
+            logger.exception("Failed to load model artifact")
             raise RuntimeError(f"Could not load model artifact: {e}") from e
 
     def unload_model(self) -> None:
@@ -109,7 +108,7 @@ class ModelService:
         MODEL_LOAD_STATUS.labels(model_version=self.model_version).set(0)
         logger.info("Model unloaded successfully.")
 
-    def predict(self, features: List[float]) -> PredictionResponse:
+    def predict(self, features: list[float]) -> PredictionResponse:
         """
         Run inference on a single feature vector.
 
@@ -177,10 +176,10 @@ class ModelService:
             PREDICTION_ERRORS_TOTAL.labels(
                 model_version=self.model_version, error_type="inference_error"
             ).inc()
-            logger.exception(f"Inference execution failed: {e}")
+            logger.exception("Inference execution failed")
             raise ModelInferenceError(f"Prediction execution failed: {e}") from e
 
-    def predict_batch(self, instances: List[List[float]]) -> BatchPredictionResponse:
+    def predict_batch(self, instances: list[list[float]]) -> BatchPredictionResponse:
         """
         Run inference on a batch of feature vectors.
 
@@ -197,7 +196,7 @@ class ModelService:
             raise ModelNotLoadedError("Model is not loaded. Cannot perform inference.")
 
         start_total = time.perf_counter()
-        predictions: List[PredictionResponse] = []
+        predictions: list[PredictionResponse] = []
 
         for row in instances:
             pred = self.predict(row)
@@ -214,7 +213,7 @@ class ModelService:
 
 
 # Singleton instance
-_model_service_instance: Optional[ModelService] = None
+_model_service_instance: ModelService | None = None
 
 
 def get_model_service() -> ModelService:

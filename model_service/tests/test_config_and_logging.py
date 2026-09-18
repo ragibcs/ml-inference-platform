@@ -4,8 +4,9 @@ Configuration and Structured Logging Unit Tests.
 
 import json
 import logging
-from app.config import Settings, get_settings
-from app.logging import JSONFormatter, setup_logging, get_logger
+
+from app.config import Settings
+from app.logging import JSONFormatter, get_logger, setup_logging
 
 
 def test_settings_defaults():

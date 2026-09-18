@@ -5,7 +5,7 @@ Loads and validates settings from environment variables using Pydantic Settings.
 """
 
 from functools import lru_cache
-from typing import List
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -48,17 +48,17 @@ class Settings(BaseSettings):
     enable_metrics: bool = Field(default=True, description="Enable Prometheus metrics endpoint")
 
     # Security & CORS
-    cors_origins: List[str] = Field(
+    cors_origins: list[str] = Field(
         default=["*"],
         description="Allowed CORS origin domains",
     )
-    allowed_hosts: List[str] = Field(
+    allowed_hosts: list[str] = Field(
         default=["*"],
         description="Allowed HTTP host headers",
     )
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Retrieve cached singleton application settings instance."""
     return Settings()

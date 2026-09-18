@@ -2,13 +2,13 @@
 Prediction API Endpoint Tests.
 """
 
-from typing import List
+
+from app.services.inference import get_model_service
 from fastapi import status
 from fastapi.testclient import TestClient
-from app.services.inference import get_model_service
 
 
-def test_predict_valid_features(client: TestClient, sample_features: List[float]):
+def test_predict_valid_features(client: TestClient, sample_features: list[float]):
     """Test standard single-instance prediction with valid 4 features."""
     payload = {"features": sample_features, "request_id": "test-req-001"}
     response = client.post("/predict", json=payload)
@@ -67,7 +67,7 @@ def test_predict_invalid_data_types(client: TestClient):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_predict_when_model_unloaded(client: TestClient, sample_features: List[float]):
+def test_predict_when_model_unloaded(client: TestClient, sample_features: list[float]):
     """Test 503 response when prediction attempted on unloaded model."""
     model_service = get_model_service()
     original_state = model_service._is_loaded
@@ -80,7 +80,7 @@ def test_predict_when_model_unloaded(client: TestClient, sample_features: List[f
         model_service._is_loaded = original_state
 
 
-def test_predict_batch_valid(client: TestClient, sample_batch_features: List[List[float]]):
+def test_predict_batch_valid(client: TestClient, sample_batch_features: list[list[float]]):
     """Test batch prediction with multiple valid vectors."""
     payload = {"instances": sample_batch_features}
     response = client.post("/predict/batch", json=payload)
@@ -110,7 +110,7 @@ def test_predict_batch_invalid_item(client: TestClient):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-def test_predict_batch_when_model_unloaded(client: TestClient, sample_batch_features: List[List[float]]):
+def test_predict_batch_when_model_unloaded(client: TestClient, sample_batch_features: list[list[float]]):
     """Test batch prediction returns 503 when model is unloaded."""
     model_service = get_model_service()
     original_state = model_service._is_loaded
