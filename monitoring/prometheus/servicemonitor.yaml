@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ml-inference-monitor
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ml-inference-service
+      app.kubernetes.io/component: inference-api
+  namespaceSelector:
+    matchNames:
+      - ml-platform
+      - ml-platform-dev
+      - ml-platform-prod
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 10s
+      scrapeTimeout: 5s
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: "(http_requests_total|http_request_duration_seconds.*|model_inference_duration_seconds.*|prediction_errors_total|predictions_total|active_requests|model_load_status)"
+          action: keep

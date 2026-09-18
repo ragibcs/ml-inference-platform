@@ -1,0 +1,91 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ml-inference-alerts
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: ml-inference-service.rules
+      rules:
+        - alert: HighErrorRate
+          expr: (sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100) > 5
+          for: 5m
+          labels:
+            severity: critical
+            tier: application
+          annotations:
+            summary: "High 5xx HTTP Error Rate detected"
+            description: "Error rate is {{ $value | printf \"%.2f\" }}% (> 5% SLO threshold) over the last 5 minutes on {{ $labels.namespace }}."
+
+        - alert: HighRequestLatency
+          expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            tier: application
+          annotations:
+            summary: "High HTTP Request Latency (p95 > 500ms)"
+            description: "95th percentile request latency is {{ $value | printf \"%.3f\" }}s for endpoint {{ $labels.endpoint }}."
+
+        - alert: HighModelInferenceLatency
+          expr: histogram_quantile(0.95, sum(rate(model_inference_duration_seconds_bucket[5m])) by (le, model_version)) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            tier: model
+          annotations:
+            summary: "Pure ML Model Inference Latency Degraded (p95 > 100ms)"
+            description: "Model inference computation latency is {{ $value | printf \"%.3f\" }}s for model version {{ $labels.model_version }}."
+
+        - alert: ModelUnloaded
+          expr: model_load_status == 0
+          for: 1m
+          labels:
+            severity: critical
+            tier: model
+          annotations:
+            summary: "ML Model is Unloaded in memory"
+            description: "Model version {{ $labels.model_version }} on pod {{ $labels.pod }} is reporting unloaded status. Readiness probes will fail."
+
+        - alert: PodRestartingFrequently
+          expr: rate(kube_pod_container_status_restarts_total{container="inference-api"}[10m]) * 600 > 3
+          for: 5m
+          labels:
+            severity: warning
+            tier: kubernetes
+          annotations:
+            summary: "Pod is restarting frequently (CrashLoop candidate)"
+            description: "Container {{ $labels.container }} in pod {{ $labels.pod }} restarted {{ $value }} times in 10 minutes."
+
+        - alert: HighCPUUsage
+          expr: (sum(rate(container_cpu_usage_seconds_total{container="inference-api"}[5m])) by (pod) / sum(kube_pod_container_resource_limits{container="inference-api", resource="cpu"}) by (pod)) * 100 > 80
+          for: 5m
+          labels:
+            severity: warning
+            tier: kubernetes
+          annotations:
+            summary: "Pod CPU Usage Exceeds 80% Limit"
+            description: "Pod {{ $labels.pod }} CPU usage is at {{ $value | printf \"%.2f\" }}% of configured limit."
+
+        - alert: HighMemoryUsage
+          expr: (sum(container_memory_working_set_bytes{container="inference-api"}) by (pod) / sum(kube_pod_container_resource_limits{container="inference-api", resource="memory"}) by (pod)) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+            tier: kubernetes
+          annotations:
+            summary: "Pod Memory Usage Exceeds 85% Limit (OOM risk)"
+            description: "Pod {{ $labels.pod }} memory working set is at {{ $value | printf \"%.2f\" }}% of limit."
+
+        - alert: DeploymentUnavailable
+          expr: kube_deployment_status_replicas_available{deployment="ml-inference-service"} < kube_deployment_spec_replicas{deployment="ml-inference-service"}
+          for: 5m
+          labels:
+            severity: critical
+            tier: kubernetes
+          annotations:
+            summary: "ML Inference Deployment Replicas Degraded"
+            description: "Available replicas ({{ $value }}) is below desired replica count for > 5 minutes."
