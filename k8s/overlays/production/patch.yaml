@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-inference-service
+spec:
+  replicas: 3
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - ml-inference-service
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: inference-api
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "384Mi"
+            limits:
+              cpu: "1000m"
+              memory: "768Mi"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-inference-config
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"

@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ml-inference-netpol
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    app.kubernetes.io/component: inference-api
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ml-inference-service
+      app.kubernetes.io/component: inference-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress on port 8000 from within namespace, ingress controllers, and monitoring namespaces
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

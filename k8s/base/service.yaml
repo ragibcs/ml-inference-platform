@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-inference-service
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    app.kubernetes.io/component: inference-api
+    app.kubernetes.io/part-of: ml-inference-platform
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: ml-inference-service
+    app.kubernetes.io/component: inference-api

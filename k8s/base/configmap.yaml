@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-inference-config
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    app.kubernetes.io/component: inference-api
+data:
+  APP_NAME: "ml-inference-platform"
+  APP_ENV: "production"
+  APP_VERSION: "v1.0.0"
+  MODEL_VERSION: "v1.0.0"
+  MODEL_PATH: "model/model.joblib"
+  EXPECTED_FEATURES_COUNT: "4"
+  HOST: "0.0.0.0"
+  PORT: "8000"
+  WORKERS: "1"
+  GRACEFUL_TIMEOUT: "30"
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+  ENABLE_METRICS: "true"

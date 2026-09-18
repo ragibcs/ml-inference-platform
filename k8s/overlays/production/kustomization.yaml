@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ml-platform-prod
+
+namePrefix: prod-
+
+resources:
+  - ../../base
+
+patches:
+  - path: patch.yaml
+
+images:
+  - name: ghcr.io/ragibcs/ml-inference-service
+    newName: ghcr.io/ragibcs/ml-inference-service
+    newTag: v1.0.0

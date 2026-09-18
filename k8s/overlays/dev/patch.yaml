@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-inference-service
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: inference-api
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-inference-config
+data:
+  APP_ENV: "dev"
+  LOG_LEVEL: "DEBUG"

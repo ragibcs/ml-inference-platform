@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ml-inference-pdb
+  namespace: ml-platform
+  labels:
+    app.kubernetes.io/name: ml-inference-service
+    app.kubernetes.io/component: inference-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ml-inference-service
+      app.kubernetes.io/component: inference-api
