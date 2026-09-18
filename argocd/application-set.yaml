@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ml-inference-appset
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: ml-inference-appset
+    app.kubernetes.io/part-of: ml-inference-platform
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            namespace: ml-platform-dev
+            overlay: k8s/overlays/dev
+            targetRevision: main
+            autoSync: true
+          - env: production
+            namespace: ml-platform-prod
+            overlay: k8s/overlays/production
+            targetRevision: main
+            autoSync: true
+
+  template:
+    metadata:
+      name: "ml-inference-{{env}}"
+      labels:
+        environment: "{{env}}"
+        app.kubernetes.io/part-of: ml-inference-platform
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: ml-platform-project
+
+      source:
+        repoURL: "https://github.com/ragibcs/ml-inference-platform.git"
+        targetRevision: "{{targetRevision}}"
+        path: "{{overlay}}"
+
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: "{{namespace}}"
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ml-platform-project
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: ml-platform-project
+    app.kubernetes.io/part-of: ml-inference-platform
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: "GitOps Project for ML Inference Platform environments"
+
+  # Source repositories allowed for applications
+  sourceRepos:
+    - "*"
+
+  # Permitted destination clusters and namespaces
+  destinations:
+    - namespace: "ml-platform"
+      server: "https://kubernetes.default.svc"
+    - namespace: "ml-platform-dev"
+      server: "https://kubernetes.default.svc"
+    - namespace: "ml-platform-prod"
+      server: "https://kubernetes.default.svc"
+
+  # Cluster-scoped resources whitelist
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  # Namespace-scoped resources whitelist
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: "apps"
+      kind: "*"
+    - group: "autoscaling"
+      kind: "*"
+    - group: "policy"
+      kind: "*"
+    - group: "networking.k8s.io"
+      kind: "*"
+    - group: "monitoring.coreos.com"
+      kind: "*"
+
+  # Sync windows and audit policies
+  orphanedResources:
+    warn: true
