@@ -1,0 +1,20 @@
+# Core API and Server
+fastapi>=0.115.0,<0.116.0
+uvicorn[standard]>=0.34.0,<0.35.0
+pydantic>=2.10.0,<2.11.0
+pydantic-settings>=2.7.0,<2.8.0
+
+# Machine Learning & Scientific
+scikit-learn>=1.6.0,<1.7.0
+numpy>=2.0.0,<3.0.0
+joblib>=1.4.0,<1.5.0
+
+# Observability & Logging
+prometheus-client>=0.21.0,<0.22.0
+python-json-logger>=3.2.0,<3.3.0
+
+# Testing & Quality
+httpx>=0.28.0,<0.29.0
+pytest>=8.3.0,<8.4.0
+pytest-cov>=6.0.0,<6.1.0
+pytest-asyncio>=0.25.0,<0.26.0
